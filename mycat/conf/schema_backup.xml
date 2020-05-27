@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!DOCTYPE mycat:schema SYSTEM "schema.dtd">
+<mycat:schema xmlns:mycat="http://io.mycat/">
+
+		<schema name="t1" checkSQLschema="false" sqlMaxLimit="100">
+                <table name="customer" primaryKey="ID" dataNode="tdn1,tdn2" rule="sharding_by_city">
+                        <childTable name="payment"  primaryKey="ID" joinKey="customer_id" parentKey="id" />
+                </table>
+
+        </schema>
+
+		<schema name="t2" checkSQLschema="false" sqlMaxLimit="100">
+                <!-- auto sharding by id (long) -->
+                <!--splitTableNames 启用<table name 属性使用逗号分割配置多个表,即多个表使用这个配置-->
+                <table name="teacher" dataNode="tdn3,tdn4" type="global" />
+                <table name="student" dataNode="tdn3,tdn4" rule="mod-long" />
+                <table name="company" dataNode="tdn3,tdn4" rule="sharding_by_city" />
+        </schema>
+
+
+        
+
+
+	<!-- <dataNode name="dn1$0-743" dataHost="localhost1" database="db$0-743"
+		/> -->
+		<dataNode name="dn1" dataHost="px1" database="neti" />
+        <dataNode name="dn2" dataHost="px2" database="neti" />
+        <dataNode name="dn3" dataHost="rn1" database="neti" />
+        <dataNode name="dn4" dataHost="rn2" database="neti" />
+        <dataNode name="tdn1" dataHost="px1" database="t1" />
+        <dataNode name="tdn2" dataHost="px2" database="t1" />
+        <dataNode name="tdn3" dataHost="rn1" database="t2" />
+        <dataNode name="tdn4" dataHost="rn2" database="t2" />
+	
+	<dataHost name="px1" maxCon="1000" minCon="10" balance="0" writeType="1" 	dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <!-- can have multi write hosts -->
+                <writeHost host="pn11" url="39.97.64.18:9001" user="root"
+                                   password="abc123456"/>
+                <writeHost host="pn12" url="47.93.162.147:9001" user="root"
+                                   password="abc123456"/>
+ 	</dataHost>
+ 	<dataHost name="px2" maxCon="1000" minCon="10" balance="0" writeType="1" 	dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+                <heartbeat>select user()</heartbeat>
+                <!-- can have multi write hosts -->
+                <writeHost host="pn11" url="39.97.64.18:9002" user="root"
+                                   password="abc123456"/>
+                <writeHost host="pn12" url="47.93.162.147:9002" user="root"
+                                   password="abc123456"/>
+ 	</dataHost>
+
+
+	<dataHost name="rn1" maxCon="1000" minCon="10" balance="3"
+			  writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+			  <heartbeat>select user()</heartbeat>
+		<writeHost host="rn11" url="39.97.64.18:9003" user="root"
+                                   password="abc123456">
+			 <readHost host="rn12" url="47.93.162.147:9003" user="root" password="abc123456"/>
+		</writeHost>
+	</dataHost>
+
+	<dataHost name="rn2" maxCon="1000" minCon="10" balance="3"
+			  writeType="0" dbType="mysql" dbDriver="native" switchType="1"  slaveThreshold="100">
+			  <heartbeat>select user()</heartbeat>
+		<writeHost host="rn21" url="39.97.64.18:9004" user="root"
+                                   password="abc123456">
+			 <readHost host="rn22" url="47.93.162.147:9004" user="root" password="abc123456"/>
+		</writeHost>
+	</dataHost>	
+	<!--
+		<dataHost name="sequoiadb1" maxCon="1000" minCon="1" balance="0" dbType="sequoiadb" dbDriver="jdbc">
+		<heartbeat> 		</heartbeat>
+		 <writeHost host="hostM1" url="sequoiadb://1426587161.dbaas.sequoialab.net:11920/SAMPLE" user="jifeng" 	password="jifeng"></writeHost>
+		 </dataHost>
+
+	  <dataHost name="oracle1" maxCon="1000" minCon="1" balance="0" writeType="0" 	dbType="oracle" dbDriver="jdbc"> <heartbeat>select 1 from dual</heartbeat>
+		<connectionInitSql>alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss'</connectionInitSql>
+		<writeHost host="hostM1" url="jdbc:oracle:thin:@127.0.0.1:1521:nange" user="base" 	password="123456" > </writeHost> </dataHost>
+
+		<dataHost name="jdbchost" maxCon="1000" 	minCon="1" balance="0" writeType="0" dbType="mongodb" dbDriver="jdbc">
+		<heartbeat>select 	user()</heartbeat>
+		<writeHost host="hostM" url="mongodb://192.168.0.99/test" user="admin" password="123456" ></writeHost> </dataHost>
+
+		<dataHost name="sparksql" maxCon="1000" minCon="1" balance="0" dbType="spark" dbDriver="jdbc">
+		<heartbeat> </heartbeat>
+		 <writeHost host="hostM1" url="jdbc:hive2://feng01:10000" user="jifeng" 	password="jifeng"></writeHost> </dataHost> -->
+
+	<!-- <dataHost name="jdbchost" maxCon="1000" minCon="10" balance="0" dbType="mysql"
+		dbDriver="jdbc"> <heartbeat>select user()</heartbeat> <writeHost host="hostM1"
+		url="jdbc:mysql://localhost:3306" user="root" password="123456"> </writeHost>
+		</dataHost> -->
+</mycat:schema>
